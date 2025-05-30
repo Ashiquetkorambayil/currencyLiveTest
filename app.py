@@ -11,7 +11,8 @@ import json
 
 load_dotenv()
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins='*', async_mode='threading')
+# Allow all origins for now, but you should restrict this in production
+socketio = SocketIO(app, cors_allowed_origins='*', async_mode='eventlet')
 
 @app.route('/')
 def index():
@@ -274,37 +275,11 @@ def start_currency_updates():
         socketio.sleep(30)  # Wait 30 seconds
 
 if __name__ == '__main__':
-    # Test connection on startup
-    print("Testing API connections...")
-    test_results = {}
-    
-    try:
-        response = requests.get("https://api.exchangerate-api.com/v4/latest/USD", timeout=5)
-        test_results['exchangerate-api'] = 'working' if response.status_code == 200 else 'failed'
-    except:
-        test_results['exchangerate-api'] = 'failed'
-    
-    print(f"API Status: {test_results}")
-    
-    # Test currency conversion
-    print("Testing currency conversion...")
-    test_conversion_usd_inr = get_currency_data_multiple_sources("USD", "INR")
-    test_conversion_aed_inr = get_currency_data_multiple_sources("AED", "INR")
-    test_conversion_aed_myr = get_currency_data_multiple_sources("AED", "MYR")
-    test_conversion_aed_usd = get_currency_data_multiple_sources("AED", "USD")
-    
-    print(f"Test conversion results:")
-    print(f"USD-INR: {test_conversion_usd_inr}")
-    print(f"AED-INR: {test_conversion_aed_inr}")
-    print(f"AED-MYR: {test_conversion_aed_myr}")
-    print(f"AED-USD: {test_conversion_aed_usd}")
-    
     # Start background updates
     socketio.start_background_task(start_currency_updates)
     
-    # Get port from environment variable for production
+    # Get port and debug mode from environment variables
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, debug=False, host='0.0.0.0', port=port)
+    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    socketio.run(app, debug=debug, host='0.0.0.0', port=port)
 
-import requests
-print(requests.get("https://api.exchangerate-api.com/v4/latest/USD").text)
