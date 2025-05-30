@@ -305,3 +305,6 @@ if __name__ == '__main__':
     # Get port from environment variable for production
     port = int(os.environ.get('PORT', 5000))
     socketio.run(app, debug=False, host='0.0.0.0', port=port)
+
+import requests
+print(requests.get("https://api.exchangerate-api.com/v4/latest/USD").text)
