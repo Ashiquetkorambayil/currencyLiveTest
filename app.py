@@ -273,12 +273,6 @@ def start_currency_updates():
         
         socketio.sleep(30)  # Wait 30 seconds
 
-# Initialize background task when app starts
-@app.before_first_request
-def initialize_background_tasks():
-    """Initialize background tasks when app starts"""
-    socketio.start_background_task(start_currency_updates)
-
 if __name__ == '__main__':
     # Test connection on startup
     print("Testing API connections...")
